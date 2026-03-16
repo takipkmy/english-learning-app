@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LexisUp — Admin</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-brand">LexisUp 📖 <span style="font-size:12px; color:var(--warning); margin-left:8px;">Admin Panel</span></div>
+  <div class="navbar-right">
+    <a href="app.html" class="btn btn-secondary btn-sm">Go to App</a>
+    <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+  </div>
+</nav>
+
+<div class="main-content">
+  <div class="section-header">
+    <h2>Admin Panel</h2>
+    <p>Manage users and monitor progress.</p>
+  </div>
+
+  <!-- Add User -->
+  <div class="card" style="margin-bottom:24px;">
+    <h3 style="font-family:'Playfair Display',serif; margin-bottom:20px;">Add New User</h3>
+    <div id="add-user-msg"></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; align-items:end;">
+      <div class="form-group" style="margin:0;">
+        <label>Email</label>
+        <input type="email" id="new-email" placeholder="user@example.com">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label>Password</label>
+        <input type="password" id="new-password" placeholder="Min 6 characters">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label>Role</label>
+        <select id="new-role">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:16px;" id="btn-add-user">Add User</button>
+  </div>
+
+  <!-- Change Password -->
+  <div class="card" style="margin-bottom:24px;">
+    <h3 style="font-family:'Playfair Display',serif; margin-bottom:20px;">Change My Password</h3>
+    <div id="change-pw-msg"></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:end;">
+      <div class="form-group" style="margin:0;">
+        <label>New Password</label>
+        <input type="password" id="new-pw" placeholder="Min 6 characters">
+      </div>
+      <div>
+        <button class="btn btn-primary" id="btn-change-pw">Update Password</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users List -->
+  <div class="card">
+    <h3 style="font-family:'Playfair Display',serif; margin-bottom:20px;">All Users</h3>
+    <div id="users-loading" class="loading"><div class="spinner"></div> Loading users...</div>
+    <div id="users-table-wrap" style="display:none;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Level</th>
+            <th>Reading</th>
+            <th>Grammar</th>
+            <th>Vocab</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { auth, db } from './js/firebase-config.js';
+import { onAuthStateChanged, signOut, createUserWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { doc, getDoc, setDoc, getDocs, deleteDoc, collection, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+let currentAdmin = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists() || snap.data().role !== 'admin') {
+    window.location.href = 'app.html';
+    return;
+  }
+  currentAdmin = user;
+  loadUsers();
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  signOut(auth).then(() => window.location.href = 'index.html');
+});
+
+// Add User
+document.getElementById('btn-add-user').addEventListener('click', async () => {
+  const email = document.getElementById('new-email').value.trim();
+  const password = document.getElementById('new-password').value;
+  const role = document.getElementById('new-role').value;
+  const msg = document.getElementById('add-user-msg');
+
+  if (!email || !password) {
+    msg.innerHTML = '<div class="alert alert-danger">Please fill all fields.</div>';
+    return;
+  }
+  if (password.length < 6) {
+    msg.innerHTML = '<div class="alert alert-danger">Password must be at least 6 characters.</div>';
+    return;
+  }
+
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      email,
+      role,
+      level: 'B1',
+      createdAt: new Date(),
+      progress: {
+        reading: { completed: 0, passed: 0, streak: 0 },
+        grammar: { completed: 0, passed: 0, streak: 0 },
+        vocabulary: { correct: 0, streak: 0 }
+      }
+    });
+    msg.innerHTML = '<div class="alert alert-success">User created successfully!</div>';
+    document.getElementById('new-email').value = '';
+    document.getElementById('new-password').value = '';
+    loadUsers();
+  } catch (err) {
+    let errMsg = 'Failed to create user.';
+    if (err.code === 'auth/email-already-in-use') errMsg = 'Email already in use.';
+    msg.innerHTML = `<div class="alert alert-danger">${errMsg}</div>`;
+  }
+});
+
+// Change Password
+document.getElementById('btn-change-pw').addEventListener('click', async () => {
+  const newPw = document.getElementById('new-pw').value;
+  const msg = document.getElementById('change-pw-msg');
+
+  if (!newPw || newPw.length < 6) {
+    msg.innerHTML = '<div class="alert alert-danger">Password must be at least 6 characters.</div>';
+    return;
+  }
+
+  try {
+    await updatePassword(currentAdmin, newPw);
+    msg.innerHTML = '<div class="alert alert-success">Password updated successfully!</div>';
+    document.getElementById('new-pw').value = '';
+  } catch (err) {
+    msg.innerHTML = '<div class="alert alert-danger">Failed to update password. Please re-login and try again.</div>';
+  }
+});
+
+// Load Users
+async function loadUsers() {
+  document.getElementById('users-loading').style.display = 'flex';
+  const snap = await getDocs(collection(db, 'users'));
+  document.getElementById('users-loading').style.display = 'none';
+  document.getElementById('users-table-wrap').style.display = 'block';
+
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = '';
+
+  snap.forEach(d => {
+    const u = d.data();
+    const p = u.progress || {};
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${u.email || '—'}</td>
+      <td><span class="chip ${u.role === 'admin' ? 'chip-purple' : 'chip-blue'}">${u.role || 'user'}</span></td>
+      <td><span class="level-badge">${u.level || 'B1'}</span></td>
+      <td>${p.reading?.passed || 0}/5</td>
+      <td>${p.grammar?.passed || 0}/5</td>
+      <td>${p.vocabulary?.correct || 0}/5</td>
+      <td>
+        <button class="btn btn-danger btn-sm delete-btn" data-uid="${d.id}">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this user?')) return;
+      await deleteDoc(doc(db, 'users', btn.dataset.uid));
+      loadUsers();
+    });
+  });
+}
+</script>
+</body>
+</html>
