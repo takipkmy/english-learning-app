@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinguaRise — B1 to C2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // REPLACE WITH YOUR FIREBASE CONFIG
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window._db = db;
+  window._fbFns = { collection, addDoc, getDocs, deleteDoc, doc };
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<style>
+:root {
+  --bg:#080810;--surface:#0f0f1a;--surface2:#16162a;--surface3:#1e1e30;
+  --border:#252538;--accent:#e8c547;--accent2:#7c6af7;--accent3:#4ecdc4;
+  --text:#eeecff;--text2:#8887a8;--text3:#4a4960;
+  --danger:#ff6b6b;--success:#51cf66;--radius:10px;--radius-lg:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.btn-primary{background:var(--accent);color:#080810;}.btn-primary:hover{background:#f0d060;transform:translateY(-1px);}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--surface3);}
+.btn-purple{background:var(--accent2);color:#fff;}.btn-purple:hover{opacity:.9;transform:translateY(-1px);}
+.btn-teal{background:var(--accent3);color:#080810;}.btn-teal:hover{opacity:.9;}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);}.btn-danger:hover{background:var(--danger);color:#fff;}
+.btn-sm{padding:7px 14px;font-size:12px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none !important;}
+
+/* LOGIN */
+#login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden;}
+#login-page::before{content:'';position:absolute;width:700px;height:700px;background:radial-gradient(circle,rgba(124,106,247,.12) 0%,transparent 65%);top:-200px;left:-150px;}
+#login-page::after{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(232,197,71,.08) 0%,transparent 65%);bottom:-100px;right:-100px;}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:48px 40px;width:100%;max-width:400px;position:relative;z-index:1;}
+.login-logo{font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:var(--accent);letter-spacing:-1px;}
+.login-sub{color:var(--text2);font-size:13px;margin-bottom:36px;margin-top:4px;}
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.form-group input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;transition:border-color .2s;outline:none;}
+.form-group input:focus{border-color:var(--accent2);}
+.login-error{color:var(--danger);font-size:13px;margin-top:12px;text-align:center;display:none;}
+
+/* APP */
+#app{display:none;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:256px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:200;transition:transform .3s;}
+.sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid var(--border);}
+.sidebar-logo-text{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--accent);letter-spacing:-.5px;}
+.sidebar-tagline{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:3px;}
+.level-widget{margin:14px 14px 0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+.level-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.level-name-sb{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;color:var(--accent);}
+.level-xp-sb{font-size:11px;color:var(--text3);}
+.level-bar-bg{background:var(--surface3);border-radius:4px;height:5px;}
+.level-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .6s cubic-bezier(.4,0,.2,1);}
+.level-next-sb{font-size:10px;color:var(--text3);margin-top:5px;text-align:right;}
+.nav-list{list-style:none;padding:10px;flex:1;overflow-y:auto;}
+.nav-section-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:2px;padding:10px 10px 4px;}
+.nav-link{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:var(--radius);color:var(--text2);cursor:pointer;transition:all .15s;font-size:14px;font-weight:500;}
+.nav-link:hover{background:var(--surface2);color:var(--text);}
+.nav-link.active{background:var(--surface2);color:var(--accent);}
+.nav-icon{font-size:17px;width:22px;text-align:center;}
+.sidebar-footer{padding:14px;border-top:1px solid var(--border);display:flex;gap:8px;}
+.sidebar-footer .btn{flex:1;font-size:12px;padding:9px;}
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:300;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px;cursor:pointer;}
+.hamburger span{display:block;width:20px;height:2px;background:var(--text);margin:4px 0;transition:.2s;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;}
+
+/* MAIN */
+.main-content{margin-left:256px;min-height:100vh;padding:32px 36px;}
+.page{display:none;}.page.active{display:block;}
+.page-header{margin-bottom:28px;}
+.page-title{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;margin-bottom:6px;}
+.page-desc{color:var(--text2);font-size:14px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:18px;}
+.card-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:var(--text);}
+
+/* DASHBOARD */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;}
+.stat-num{font-family:'Playfair Display',serif;font-size:40px;font-weight:900;line-height:1;margin-bottom:4px;}
+.stat-card.gold .stat-num{color:var(--accent);}
+.stat-card.purple .stat-num{color:var(--accent2);}
+.stat-card.teal .stat-num{color:var(--accent3);}
+.stat-label{color:var(--text2);font-size:12px;}
+
+/* READING */
+.reading-tabs{display:flex;gap:8px;margin-bottom:22px;}
+.tab-btn{padding:9px 20px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.tab-btn.active{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.reading-tab-content{display:none;}.reading-tab-content.active{display:block;}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:18px;}
+.topic-chip{padding:9px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;text-align:center;}
+.topic-chip:hover,.topic-chip.selected{border-color:var(--accent2);color:var(--accent2);background:rgba(124,106,247,.1);}
+.article-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;margin-bottom:18px;line-height:1.9;font-size:15px;}
+.article-box h2{font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);margin-bottom:16px;line-height:1.3;}
+.article-box p{margin-bottom:14px;color:var(--text);}
+.clickable-word{cursor:pointer;border-bottom:1px dashed var(--text3);transition:color .15s,border-color .15s;display:inline;}
+.clickable-word:hover{color:var(--accent3);border-color:var(--accent3);}
+textarea.paste-area{width:100%;min-height:180px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.7;resize:vertical;outline:none;margin-bottom:14px;}
+textarea.paste-area:focus{border-color:var(--accent2);}
+.question-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
+.q-num{font-size:10px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.q-text{font-weight:600;color:var(--text);margin-bottom:10px;font-size:14px;}
+textarea.ans-input{width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;resize:vertical;min-height:70px;transition:border-color .2s;}
+textarea.ans-input:focus{border-color:var(--accent2);}
+.feedback-box{margin-top:10px;padding:12px 14px;border-radius:var(--radius);font-size:13px;line-height:1.6;display:none;}
+.feedback-box.good{background:rgba(81,207,102,.08);border:1px solid rgba(81,207,102,.25);color:var(--success);}
+.feedback-box.improve{background:rgba(232,197,71,.08);border:1px solid rgba(232,197,71,.25);color:var(--accent);}
+
+/* XP TOAST */
+.xp-toast{position:fixed;bottom:30px;right:30px;background:var(--accent);color:#080810;padding:12px 22px;border-radius:var(--radius);font-weight:700;font-size:14px;z-index:2000;transform:translateY(80px);opacity:0;transition:all .4s;pointer-events:none;}
+.xp-toast.show{transform:translateY(0);opacity:1;}
+
+/* WORD POPUP */
+.word-popup{position:fixed;background:var(--surface);border:1px solid var(--accent3);border-radius:var(--radius-lg);padding:16px 18px;z-index:1500;min-width:190px;max-width:270px;box-shadow:0 20px 50px rgba(0,0,0,.7);display:none;}
+.wp-word{font-family:'Playfair Display',serif;font-size:20px;color:var(--accent3);margin-bottom:3px;}
+.wp-loading{color:var(--text3);font-size:13px;}
+.wp-meaning{color:var(--text2);font-size:13px;line-height:1.5;margin-bottom:10px;display:none;}
+.wp-close{position:absolute;top:9px;right:12px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;line-height:1;}
+.wp-actions{display:none;gap:8px;}
+
+/* GRAMMAR */
+.tense-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:22px;}
+.tense-chip{padding:11px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+.tense-chip:hover{border-color:var(--accent);color:var(--accent);}
+.tense-chip.active{background:rgba(232,197,71,.12);border-color:var(--accent);color:var(--accent);}
+.tense-detail{display:none;}.tense-detail.active{display:block;}
+.tense-header{font-family:'Playfair Display',serif;font-size:26px;color:var(--accent);margin-bottom:10px;}
+.tense-use{background:rgba(124,106,247,.08);border-left:3px solid var(--accent2);padding:13px 16px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:16px;color:var(--text2);font-size:13px;line-height:1.7;}
+.tense-formula{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent3);background:var(--surface2);padding:7px 12px;border-radius:var(--radius);margin-bottom:18px;display:inline-block;}
+.sentence-row{display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start;margin-bottom:10px;}
+.s-type{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:5px 8px;border-radius:6px;text-align:center;margin-top:2px;}
+.s-pos{background:rgba(81,207,102,.12);color:var(--success);}
+.s-neg{background:rgba(255,107,107,.12);color:var(--danger);}
+.s-que{background:rgba(78,205,196,.12);color:var(--accent3);}
+.s-text{font-size:14px;color:var(--text);line-height:1.6;}
+
+/* MY WORDS */
+.words-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.word-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;}
+.word-card:hover{border-color:var(--accent3);transform:translateY(-2px);}
+.wc-word{font-family:'Playfair Display',serif;font-size:17px;color:var(--text);margin-bottom:2px;}
+.wc-meaning{font-size:12px;color:var(--text2);display:none;margin-top:4px;}
+.word-card.revealed .wc-meaning{display:block;}
+.wc-delete{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;transition:color .2s;}
+.wc-delete:hover{color:var(--danger);}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-state .es-icon{font-size:48px;margin-bottom:12px;}
+
+/* QUIZ */
+.quiz-option{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .2s;margin-bottom:8px;font-size:14px;}
+.quiz-option:hover{border-color:var(--accent2);}
+.quiz-option.correct{border-color:var(--success);background:rgba(81,207,102,.08);color:var(--success);}
+.quiz-option.wrong{border-color:var(--danger);background:rgba(255,107,107,.08);color:var(--danger);}
+.quiz-option.disabled{pointer-events:none;}
+
+/* ADMIN */
+.admin-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;margin-bottom:18px;}
+.admin-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--accent);margin-bottom:18px;}
+.admin-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;margin-bottom:10px;}
+.admin-input:focus{border-color:var(--accent2);}
+
+/* LOADING */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent2);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-row{display:flex;align-items:center;gap:10px;color:var(--text2);font-size:13px;padding:20px 0;}
+.alert{padding:12px 16px;border-radius:var(--radius);font-size:13px;margin-bottom:14px;}
+.alert-info{background:rgba(124,106,247,.08);border:1px solid rgba(124,106,247,.25);color:var(--accent2);}
+.alert-danger{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25);color:var(--danger);}
+
+/* MOBILE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay.open{display:block;}
+  .hamburger{display:block;}
+  .main-content{margin-left:0;padding:20px 16px;padding-top:60px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .tense-grid{grid-template-columns:1fr 1fr;}
+  .sentence-row{grid-template-columns:1fr;gap:4px;}
+  .page-title{font-size:26px;}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr;}
+  .tense-grid{grid-template-columns:1fr;}
+  .words-grid{grid-template-columns:1fr;}
+  .topic-grid{grid-template-columns:repeat(2,1fr);}
+  .login-card{padding:32px 24px;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-logo">LinguaRise</div>
+    <div class="login-sub">Your personal B1 → C2 journey</div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="Enter username" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="doLogin()">Sign In →</button>
+    <div class="login-error" id="login-error">Incorrect username or password.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">LinguaRise</div>
+      <div class="sidebar-tagline">// B1 → C2 personal trainer</div>
+    </div>
+    <div class="level-widget">
+      <div class="level-top">
+        <span class="level-name-sb" id="sb-level">B1</span>
+        <span class="level-xp-sb" id="sb-xp">0 XP</span>
+      </div>
+      <div class="level-bar-bg"><div class="level-bar-fill" id="sb-bar" style="width:0%"></div></div>
+      <div class="level-next-sb" id="sb-next">Next: B1+</div>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-section-label">Main</li>
+      <li><div class="nav-link active" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span>Dashboard</div></li>
+      <li class="nav-section-label">Learn</li>
+      <li><div class="nav-link" onclick="showPage('reading')"><span class="nav-icon">📰</span>Reading</div></li>
+      <li><div class="nav-link" onclick="showPage('grammar')"><span class="nav-icon">✏️</span>Grammar</div></li>
+      <li><div class="nav-link" onclick="showPage('mywords')"><span class="nav-icon">📚</span>My Words</div></li>
+      <li><div class="nav-link" onclick="showPage('wordquiz')"><span class="nav-icon">🎯</span>Word Quiz</div></li>
+      <li class="nav-section-label">Account</li>
+      <li><div class="nav-link" onclick="showPage('admin')"><span class="nav-icon">⚙️</span>Settings</div></li>
+    </ul>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary" onclick="doLogout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1 class="page-title">Welcome back 👋</h1>
+        <p class="page-desc">Keep the momentum going — every article makes you sharper.</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card gold"><div class="stat-num" id="stat-level-name">B1</div><div class="stat-label">Current Level</div></div>
+        <div class="stat-card purple"><div class="stat-num" id="stat-xp">0</div><div class="stat-label">Total XP</div></div>
+        <div class="stat-card teal"><div class="stat-num" id="stat-articles">0</div><div class="stat-label">Articles Read</div></div>
+        <div class="stat-card gold"><div class="stat-num" id="stat-words">0</div><div class="stat-label">Words Saved</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📈 Level Progress</div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:var(--text2)">
+              <span id="dash-level">B1</span><span id="dash-xp-needed"></span>
+            </div>
+            <div class="level-bar-bg" style="height:8px"><div class="level-bar-fill" id="dash-bar" style="width:0%"></div></div>
+          </div>
+          <div style="font-size:13px;color:var(--text3)">→ <span id="dash-next-level" style="color:var(--accent)">B1+</span></div>
+        </div>
+        <p style="margin-top:14px;font-size:13px;color:var(--text3);line-height:1.7">Quality answers earn more XP. Longer, detailed responses advance your level faster.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">🚀 Quick Start</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-purple" onclick="showPage('reading')">📰 Read an Article</button>
+          <button class="btn btn-secondary" onclick="showPage('grammar')">✏️ Study Grammar</button>
+          <button class="btn btn-teal" onclick="showPage('mywords')">📚 Review Words</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- READING -->
+    <div class="page" id="page-reading">
+      <div class="page-header">
+        <h1 class="page-title">📰 Reading</h1>
+        <p class="page-desc">Read at your level — earn XP with every thoughtful answer. Click any word for its Turkish meaning.</p>
+      </div>
+      <div class="reading-tabs">
+        <button class="tab-btn active" onclick="switchReadingTab('generate',this)">🤖 Generate Article</button>
+        <button class="tab-btn" onclick="switchReadingTab('paste',this)">📋 Paste Your Article</button>
+      </div>
+
+      <!-- GENERATE -->
+      <div class="reading-tab-content active" id="rtab-generate">
+        <div class="card">
+          <div class="card-title">Choose a topic</div>
+          <div class="topic-grid">
+            <div class="topic-chip" onclick="selectTopic(this,'Technology')">💻 Technology</div>
+            <div class="topic-chip" onclick="selectTopic(this,'Science')">🔬 Science</div>
+            <div class="topic-chip" onclick="selectTopic(this,'Environment')">🌍 Environment</div>
+            <div class="topic-chip" onclick="selectTopic(this,'Business')">💼 Business</div>
+            <div class="topic-chip" onclick="selectTopic(this,'Politics')">🏛️ Politics</div>
+            <div class="topic-chip" onclick="selectTopic(this,'Health')">🏥 Health</div>
+            <div class="topic-chip" onclick="selectTopic(this,'Sports')">⚽ Sports</div>
+            <div class="topic-chip" onclick="selectTopic(this,'Culture')">🎭 Culture</div>
+            <div class="topic-chip" onclick="selectTopic(this,'History')">📜 History</div>
+            <div class="topic-chip" onclick="selectTopic(this,'Psychology')">🧠 Psychology</div>
+          </div>
+          <button class="btn btn-purple" id="gen-btn" onclick="generateArticle()" disabled>Generate Article →</button>
+        </div>
+        <div id="gen-loading" class="loading-row" style="display:none"><div class="spinner"></div> Generating article at your level…</div>
+        <div id="gen-article-area"></div>
+      </div>
+
+      <!-- PASTE -->
+      <div class="reading-tab-content" id="rtab-paste">
+        <div class="card">
+          <div class="card-title">Paste an article</div>
+          <textarea class="paste-area" id="paste-text" placeholder="Paste any English article here — from BBC, CNN, The Guardian, etc."></textarea>
+          <button class="btn btn-purple" onclick="processPastedArticle()">Analyse &amp; Create Questions →</button>
+        </div>
+        <div id="paste-loading" class="loading-row" style="display:none"><div class="spinner"></div> Analysing article…</div>
+        <div id="paste-article-area"></div>
+      </div>
+    </div>
+
+    <!-- GRAMMAR -->
+    <div class="page" id="page-grammar">
+      <div class="page-header">
+        <h1 class="page-title">✏️ Grammar</h1>
+        <p class="page-desc">Master every English tense — from basic to advanced.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Select a tense</div>
+        <div class="tense-grid" id="tense-grid"></div>
+      </div>
+      <div id="tense-detail-container"></div>
+    </div>
+
+    <!-- MY WORDS -->
+    <div class="page" id="page-mywords">
+      <div class="page-header">
+        <h1 class="page-title">📚 My Words</h1>
+        <p class="page-desc">Your personal vocabulary list — saved across all devices. Click a card to reveal its meaning.</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-secondary btn-sm" onclick="loadMyWords()">🔄 Refresh</button>
+          <span style="color:var(--text3);font-size:12px">Click a word card to reveal its Turkish meaning</span>
+        </div>
+        <div id="words-loading" class="loading-row"><div class="spinner"></div> Loading words…</div>
+        <div class="words-grid" id="words-grid" style="display:none"></div>
+        <div id="words-empty" class="empty-state" style="display:none">
+          <div class="es-icon">📖</div>
+          <p>No words saved yet.<br>Click on any word while reading to save it!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORD QUIZ -->
+    <div class="page" id="page-wordquiz">
+      <div class="page-header">
+        <h1 class="page-title">🎯 Word Quiz</h1>
+        <p class="page-desc">Test yourself on your saved vocabulary.</p>
+      </div>
+      <div class="card" id="wquiz-start-card">
+        <p style="color:var(--text2);font-size:14px;margin-bottom:16px">Quiz yourself on the words you have saved. You need at least 4 words to start.</p>
+        <button class="btn btn-purple" onclick="startWordQuiz()">Start Quiz →</button>
+      </div>
+      <div id="wquiz-area" style="display:none"></div>
+      <div id="wquiz-result" style="display:none"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-admin">
+      <div class="page-header">
+        <h1 class="page-title">⚙️ Settings</h1>
+        <p class="page-desc">Manage your credentials and API key.</p>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-title">🔐 Change Username</div>
+        <input type="text" id="new-username" class="admin-input" placeholder="New username">
+        <button class="btn btn-primary btn-sm" onclick="changeUsername()">Save Username</button>
+        <div id="username-msg" style="margin-top:8px;font-size:13px;display:none"></div>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-title">🔑 Change Password</div>
+        <input type="password" id="cur-pass" class="admin-input" placeholder="Current password">
+        <input type="password" id="new-pass" class="admin-input" placeholder="New password (min 4 chars)">
+        <button class="btn btn-primary btn-sm" onclick="changePassword()">Save Password</button>
+        <div id="pass-msg" style="margin-top:8px;font-size:13px;display:none"></div>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-title">🤖 Claude API Key</div>
+        <p style="color:var(--text2);font-size:13px;margin-bottom:14px">Used for article generation, questions, and word translation. Get your key from <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent2)">console.anthropic.com</a> — use the <strong>claude-haiku</strong> model, it's very affordable.</p>
+        <input type="password" id="api-key-input" class="admin-input" style="font-family:'JetBrains Mono',monospace;font-size:13px" placeholder="sk-ant-...">
+        <button class="btn btn-primary btn-sm" onclick="saveApiKeySetting()">Save API Key</button>
+        <div id="api-msg" style="margin-top:8px;font-size:13px;display:none"></div>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-title">🔥 Firebase Setup</div>
+        <p style="color:var(--text2);font-size:13px;margin-bottom:12px">To sync your words across devices, create a free Firebase project at <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent2)">console.firebase.google.com</a>, then open this HTML file in a text editor and replace the <code style="color:var(--accent3);background:var(--surface2);padding:2px 6px;border-radius:4px">YOUR_*</code> values near the top.</p>
+        <div class="alert alert-info">The Firebase config must be edited directly in the HTML file. Enable Firestore Database in test mode for initial setup.</div>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-title">🔄 Reset Progress</div>
+        <p style="color:var(--text2);font-size:13px;margin-bottom:14px">Reset your level and XP back to B1. Your saved words will NOT be deleted.</p>
+        <button class="btn btn-danger btn-sm" onclick="resetProgress()">Reset Level &amp; XP</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- WORD POPUP -->
+<div class="word-popup" id="word-popup">
+  <button class="wp-close" onclick="closeWordPopup()">✕</button>
+  <div class="wp-word" id="wp-word"></div>
+  <div class="wp-loading" id="wp-loading">Looking up…</div>
+  <div class="wp-meaning" id="wp-meaning"></div>
+  <div class="wp-actions" id="wp-actions">
+    <button class="btn btn-teal btn-sm" id="wp-save-btn" onclick="saveCurrentWord()">+ Add to My Words</button>
+  </div>
+</div>
+
+<!-- XP TOAST -->
+<div class="xp-toast" id="xp-toast"></div>
+
+<script>
+/* ── CONSTANTS ── */
+const LEVELS = [
+  {name:'B1',   xp:0},
+  {name:'B1+',  xp:150},
+  {name:'B2',   xp:350},
+  {name:'B2+',  xp:600},
+  {name:'C1',   xp:900},
+  {name:'C1+',  xp:1300},
+  {name:'C2',   xp:1800},
+];
+
+/* ── STATE ── */
+let S = { xp:0, articlesRead:0, fbReady:false, myWords:[], currentWord:'', currentMeaning:'' };
+
+/* ── PERSIST ── */
+function saveProgress(){ localStorage.setItem('lr_progress', JSON.stringify({xp:S.xp,articlesRead:S.articlesRead})); }
+function loadProgress(){ const r=localStorage.getItem('lr_progress'); if(r){const p=JSON.parse(r);S.xp=p.xp||0;S.articlesRead=p.articlesRead||0;} }
+function getCreds(){ return JSON.parse(localStorage.getItem('lr_creds')||'{"user":"admin","pass":"1234"}'); }
+function saveCreds(c){ localStorage.setItem('lr_creds',JSON.stringify(c)); }
+function getApiKey(){ return localStorage.getItem('lr_apikey')||''; }
+function storeApiKey(k){ localStorage.setItem('lr_apikey',k); }
+
+/* ── LEVEL UTILS ── */
+function getCurLevel(){ let l=LEVELS[0]; for(const x of LEVELS){if(S.xp>=x.xp)l=x;} return l; }
+function getNextLevel(){ const i=LEVELS.findIndex(l=>l.name===getCurLevel().name); return LEVELS[i+1]||null; }
+function getLevelPct(){
+  const c=getCurLevel(),n=getNextLevel();
+  if(!n) return 100;
+  return Math.min(100,Math.round(((S.xp-c.xp)/(n.xp-c.xp))*100));
+}
+function addXP(amt){
+  const prev=getCurLevel().name;
+  S.xp+=amt; saveProgress(); updateLevelUI();
+  const cur=getCurLevel().name;
+  toast('+'+amt+' XP'+(cur!==prev?' 🎉 Level Up: '+cur+'!':''));
+}
+function updateLevelUI(){
+  const c=getCurLevel(),n=getNextLevel(),p=getLevelPct();
+  // sidebar
+  document.getElementById('sb-level').textContent=c.name;
+  document.getElementById('sb-xp').textContent=S.xp+' XP';
+  document.getElementById('sb-bar').style.width=p+'%';
+  document.getElementById('sb-next').textContent=n?'Next: '+n.name+' ('+n.xp+' XP)':'🏆 Max Level!';
+  // dashboard
+  document.getElementById('stat-level-name').textContent=c.name;
+  document.getElementById('stat-xp').textContent=S.xp;
+  document.getElementById('stat-articles').textContent=S.articlesRead;
+  document.getElementById('dash-level').textContent=c.name;
+  document.getElementById('dash-bar').style.width=p+'%';
+  document.getElementById('dash-next-level').textContent=n?n.name:'MAX';
+  document.getElementById('dash-xp-needed').textContent=n?S.xp+' / '+n.xp+' XP':'Completed!';
+}
+function toast(msg){
+  const t=document.getElementById('xp-toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ── LOGIN ── */
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  const c=getCreds();
+  if(u===c.user&&p===c.pass){
+    document.getElementById('login-page').style.display='none';
+    document.getElementById('app').style.display='block';
+    loadProgress(); updateLevelUI(); buildGrammarPage();
+    document.getElementById('api-key-input').value=getApiKey();
+  } else {
+    const e=document.getElementById('login-error');
+    e.style.display='block'; setTimeout(()=>e.style.display='none',3000);
+  }
+}
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('login-user').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-page').style.display='flex';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+}
+
+/* ── NAV ── */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(n=>{if(n.getAttribute('onclick')?.includes("'"+id+"'"))n.classList.add('active');});
+  closeSidebar();
+  if(id==='mywords') loadMyWords();
+  if(id==='wordquiz') prepWordQuiz();
+  if(id==='dashboard'){updateLevelUI();document.getElementById('stat-words').textContent=S.myWords.length;}
+}
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+/* ── CLAUDE API ── */
+async function callClaude(system, user, maxTokens=1500){
+  const key=getApiKey();
+  if(!key) throw new Error('No API key. Go to Settings → Claude API Key.');
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-haiku-4-5-20251001',
+      max_tokens:maxTokens,
+      system,
+      messages:[{role:'user',content:user}]
+    })
+  });
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'API error '+res.status);}
+  const d=await res.json();
+  return d.content[0].text;
+}
+
+/* ── READING ── */
+let selectedTopic=null;
+function selectTopic(el,topic){
+  document.querySelectorAll('.topic-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected'); selectedTopic=topic;
+  document.getElementById('gen-btn').disabled=false;
+}
+function switchReadingTab(tab,btn){
+  document.querySelectorAll('.reading-tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('rtab-'+tab).classList.add('active'); btn.classList.add('active');
+}
+
+async function generateArticle(){
+  const lvl=getCurLevel().name;
+  const load=document.getElementById('gen-loading');
+  const area=document.getElementById('gen-article-area');
+  load.style.display='flex'; area.innerHTML='';
+  document.getElementById('gen-btn').disabled=true;
+  try{
+    const raw=await callClaude(
+      'You are an expert English language teacher. Return ONLY valid JSON, no markdown fences.',
+      `Write a 300-400 word article about "${selectedTopic}" for a ${lvl} English learner moving toward C2.
+Use vocabulary complexity appropriate for ${lvl}.
+Return JSON: {"title":"...","body":"paragraph1\\n\\nparagraph2\\n\\nparagraph3"}`,
+      1800
+    );
+    const obj=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    load.style.display='none';
+    await renderArticle(obj,'gen-article-area');
+  }catch(e){
+    load.style.display='none';
+    area.innerHTML=`<div class="alert alert-danger">Error: ${e.message}</div>`;
+  }finally{document.getElementById('gen-btn').disabled=false;}
+}
+
+async function processPastedArticle(){
+  const text=document.getElementById('paste-text').value.trim();
+  if(!text){alert('Please paste an article first.');return;}
+  const load=document.getElementById('paste-loading');
+  const area=document.getElementById('paste-article-area');
+  load.style.display='flex'; area.innerHTML='';
+  try{
+    const lines=text.split('\n').filter(l=>l.trim());
+    const title=lines[0].length<120?lines[0]:'Article';
+    load.style.display='none';
+    await renderArticle({title,body:text},'paste-article-area');
+  }catch(e){
+    load.style.display='none';
+    area.innerHTML=`<div class="alert alert-danger">Error: ${e.message}</div>`;
+  }
+}
+
+async function renderArticle(article, areaId){
+  const area=document.getElementById(areaId);
+  const paras=article.body.split(/\n\n+/).filter(p=>p.trim());
+  const parasHtml=paras.map(p=>`<p>${makeClickable(p)}</p>`).join('');
+  area.innerHTML=`
+    <div class="article-box">
+      <h2>${article.title}</h2>
+      ${parasHtml}
+    </div>
+    <div id="q-loading-${areaId}" class="loading-row"><div class="spinner"></div> Generating questions…</div>
+    <div id="q-area-${areaId}"></div>
+  `;
+  // Generate questions
+  try{
+    const lvl=getCurLevel().name;
+    const raw=await callClaude(
+      'You are an English teacher. Return ONLY valid JSON array, no markdown.',
+      `Article: "${article.title}"\n${article.body.substring(0,1500)}\n\nCreate 5 open-ended comprehension questions for a ${lvl} learner. Mix factual, inferential, and opinion questions.\nReturn: [{"id":1,"question":"..."},{"id":2,"question":"..."},{"id":3,"question":"..."},{"id":4,"question":"..."},{"id":5,"question":"..."}]`,
+      1200
+    );
+    const questions=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    document.getElementById('q-loading-'+areaId).style.display='none';
+    const qHtml=questions.map((q,i)=>`
+      <div class="question-block">
+        <div class="q-num">Question ${i+1}</div>
+        <div class="q-text">${q.question}</div>
+        <textarea class="ans-input" id="ans-${areaId}-${q.id}" placeholder="Write your answer here…"></textarea>
+        <div style="margin-top:8px">
+          <button class="btn btn-purple btn-sm" onclick="checkAnswer('${areaId}',${q.id},'${encodeQ(q.question)}')">Check Answer</button>
+        </div>
+        <div class="feedback-box" id="fb-${areaId}-${q.id}"></div>
+      </div>
+    `).join('');
+    document.getElementById('q-area-'+areaId).innerHTML=`
+      <div class="card">
+        <div class="card-title">📝 Comprehension Questions</div>
+        ${qHtml}
+        <button class="btn btn-secondary btn-sm" style="margin-top:4px" onclick="checkAllAnswers('${areaId}',[${questions.map(q=>q.id).join(',')}],${JSON.stringify(questions.map(q=>encodeQ(q.question))).replace(/"/g,"'")})">Check All</button>
+      </div>
+    `;
+    S.articlesRead++; saveProgress(); updateLevelUI();
+  }catch(e){
+    document.getElementById('q-loading-'+areaId).style.display='none';
+    document.getElementById('q-area-'+areaId).innerHTML=`<div class="alert alert-danger">Questions error: ${e.message}</div>`;
+  }
+}
+
+function encodeQ(s){return encodeURIComponent(s);}
+
+async function checkAnswer(areaId, qId, encodedQ){
+  const question=decodeURIComponent(encodedQ);
+  const answer=document.getElementById('ans-'+areaId+'-'+qId)?.value.trim();
+  if(!answer){alert('Please write an answer first.');return;}
+  const fb=document.getElementById('fb-'+areaId+'-'+qId);
+  fb.style.display='block'; fb.className='feedback-box improve'; fb.textContent='Checking…';
+  try{
+    const lvl=getCurLevel().name;
+    const raw=await callClaude(
+      'You are a supportive English teacher. Return ONLY valid JSON.',
+      `Question: "${question}"\nStudent answer: "${answer}"\nStudent level: ${lvl}\n\nGive brief feedback (2-3 sentences): Was it correct? Any grammar mistakes? How to improve for ${lvl}?\nXP: 5=very poor, 10=ok, 18=good, 25=excellent\nReturn: {"feedback":"...","xp":15,"quality":"good|improve"}`,
+      800
+    );
+    const obj=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    fb.className='feedback-box '+(obj.quality==='good'?'good':'improve');
+    fb.innerHTML=`<strong>${obj.quality==='good'?'✅ Good answer!':'💡 Feedback:'}</strong> ${obj.feedback}`;
+    addXP(obj.xp||10);
+  }catch(e){
+    fb.textContent='Could not check: '+e.message;
+  }
+}
+
+function checkAllAnswers(areaId, ids, encodedQs){
+  ids.forEach((id,i)=>{
+    const ans=document.getElementById('ans-'+areaId+'-'+id)?.value.trim();
+    if(ans) checkAnswer(areaId, id, encodedQs[i]);
+  });
+}
+
+/* ── CLICKABLE WORDS ── */
+function makeClickable(text){
+  return text.replace(/\b([a-zA-Z']{3,})\b/g,(w)=>`<span class="clickable-word" onclick="lookupWord('${w.replace(/'/g,"&#39;")}')">${w}</span>`);
+}
+
+/* ── WORD POPUP ── */
+async function lookupWord(word){
+  S.currentWord=word; S.currentMeaning='';
+  const popup=document.getElementById('word-popup');
+  document.getElementById('wp-word').textContent=word;
+  document.getElementById('wp-loading').style.display='block';
+  document.getElementById('wp-meaning').style.display='none';
+  document.getElementById('wp-actions').style.display='none';
+  document.getElementById('wp-save-btn').disabled=false;
+  document.getElementById('wp-save-btn').textContent='+ Add to My Words';
+  popup.style.cssText='display:block;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);';
+  try{
+    const raw=await callClaude(
+      'You are a bilingual EN-TR dictionary. Return ONLY valid JSON.',
+      `Translate English word "${word}" to Turkish. Return: {"turkish":"meaning","example":"short English example","type":"noun/verb/adj/adv"}`,
+      300
+    );
+    const obj=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    S.currentMeaning=obj.turkish;
+    document.getElementById('wp-loading').style.display='none';
+    const m=document.getElementById('wp-meaning');
+    m.style.display='block';
+    m.innerHTML=`<strong style="color:var(--text3);font-size:11px;text-transform:uppercase">${obj.type}</strong><br><span style="font-size:15px;color:var(--text)">${obj.turkish}</span><br><span style="color:var(--text3);font-size:12px;margin-top:4px;display:block;font-style:italic">"${obj.example}"</span>`;
+    document.getElementById('wp-actions').style.display='flex';
+  }catch(e){
+    document.getElementById('wp-loading').textContent='Error: '+e.message;
+  }
+}
+function closeWordPopup(){ document.getElementById('word-popup').style.display='none'; }
+document.addEventListener('click',e=>{
+  const p=document.getElementById('word-popup');
+  if(p.style.display==='block'&&!p.contains(e.target)&&!e.target.classList.contains('clickable-word'))
+    closeWordPopup();
+});
+async function saveCurrentWord(){
+  if(!S.currentWord||!S.currentMeaning) return;
+  const btn=document.getElementById('wp-save-btn');
+  btn.disabled=true; btn.textContent='Saving…';
+  await addWordFirebase(S.currentWord, S.currentMeaning);
+  btn.textContent='✓ Saved!';
+  S.myWords.push({word:S.currentWord,meaning:S.currentMeaning});
+  document.getElementById('stat-words').textContent=S.myWords.length;
+}
+
+/* ── FIREBASE ── */
+window.addEventListener('firebase-ready',()=>{ S.fbReady=true; });
+async function addWordFirebase(word,meaning){
+  if(!S.fbReady){alert('Firebase not configured yet. See Settings → Firebase Setup.');return;}
+  try{
+    const {collection,addDoc}=window._fbFns;
+    await addDoc(collection(window._db,'words'),{word,meaning,addedAt:Date.now()});
+  }catch(e){alert('Save error: '+e.message);}
+}
+async function loadMyWords(){
+  const loading=document.getElementById('words-loading');
+  const grid=document.getElementById('words-grid');
+  const empty=document.getElementById('words-empty');
+  loading.style.display='flex'; grid.style.display='none'; empty.style.display='none';
+  if(!S.fbReady){
+    loading.innerHTML='<span style="color:var(--danger)">Firebase not configured. Edit the HTML to add your Firebase config.</span>';
+    return;
+  }
+  try{
+    const {collection,getDocs}=window._fbFns;
+    const snap=await getDocs(collection(window._db,'words'));
+    S.myWords=[];
+    snap.forEach(d=>S.myWords.push({id:d.id,...d.data()}));
+    loading.style.display='none';
+    document.getElementById('stat-words').textContent=S.myWords.length;
+    if(S.myWords.length===0){ empty.style.display='block'; return; }
+    grid.style.display='grid';
+    grid.innerHTML=S.myWords.map(w=>`
+      <div class="word-card" onclick="this.classList.toggle('revealed')">
+        <button class="wc-delete" onclick="event.stopPropagation();deleteWord('${w.id}')">✕</button>
+        <div class="wc-word">${w.word}</div>
+        <div class="wc-meaning">${w.meaning}</div>
+      </div>
+    `).join('');
+  }catch(e){
+    loading.innerHTML=`<span style="color:var(--danger)">Error: ${e.message}</span>`;
+  }
+}
+async function deleteWord(id){
+  if(!confirm('Remove this word?')) return;
+  try{
+    const {doc,deleteDoc}=window._fbFns;
+    await deleteDoc(doc(window._db,'words',id));
+    loadMyWords();
+  }catch(e){alert('Error: '+e.message);}
+}
+
+/* ── WORD QUIZ ── */
+let qWords=[],qIdx=0,qScore=0;
+async function prepWordQuiz(){
+  if(!S.fbReady||S.myWords.length>0) return;
+  try{
+    const {collection,getDocs}=window._fbFns;
+    const snap=await getDocs(collection(window._db,'words'));
+    snap.forEach(d=>S.myWords.push({id:d.id,...d.data()}));
+  }catch(e){}
+}
+function startWordQuiz(){
+  if(S.myWords.length<4){alert('You need at least 4 saved words to start a quiz!');return;}
+  qWords=[...S.myWords].sort(()=>Math.random()-.5).slice(0,Math.min(10,S.myWords.length));
+  qIdx=0; qScore=0;
+  document.getElementById('wquiz-start-card').style.display='none';
+  document.getElementById('wquiz-result').style.display='none';
+  document.getElementById('wquiz-area').style.display='block';
+  showQuizQ();
+}
+function showQuizQ(){
+  if(qIdx>=qWords.length){showQuizResult();return;}
+  const cur=qWords[qIdx];
+  const others=S.myWords.filter(w=>w.id!==cur.id).sort(()=>Math.random()-.5).slice(0,3);
+  const opts=[...others,cur].sort(()=>Math.random()-.5);
+  document.getElementById('wquiz-area').innerHTML=`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;color:var(--text3)">Question ${qIdx+1}/${qWords.length}</span>
+        <span style="font-size:12px;color:var(--accent)">Score: ${qScore}</span>
+      </div>
+      <div style="font-family:'Playfair Display',serif;font-size:28px;color:var(--text);text-align:center;padding:24px 0">${cur.word}</div>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:14px">What is the Turkish meaning?</p>
+      ${opts.map(o=>`<div class="quiz-option" onclick="pickQuizOpt(this,'${o.id}','${cur.id}')">${o.meaning}</div>`).join('')}
+    </div>
+  `;
+}
+function pickQuizOpt(el,selId,corId){
+  document.querySelectorAll('.quiz-option').forEach(o=>o.classList.add('disabled'));
+  if(selId===corId){el.classList.add('correct');qScore++;addXP(8);}
+  else{
+    el.classList.add('wrong');
+    document.querySelectorAll('.quiz-option').forEach(o=>{
+      if(o.getAttribute('onclick')?.includes("'"+corId+"'"))o.classList.add('correct');
+    });
+  }
+  qIdx++; setTimeout(showQuizQ,1300);
+}
+function showQuizResult(){
+  document.getElementById('wquiz-area').style.display='none';
+  const r=document.getElementById('wquiz-result');
+  r.style.display='block';
+  const pct=Math.round((qScore/qWords.length)*100);
+  r.innerHTML=`
+    <div class="card" style="text-align:center;padding:40px">
+      <div style="font-size:52px;margin-bottom:12px">${pct>=80?'🎉':pct>=50?'👍':'📚'}</div>
+      <div style="font-family:'Playfair Display',serif;font-size:36px;color:var(--accent);margin-bottom:8px">${qScore}/${qWords.length}</div>
+      <div style="color:var(--text2);margin-bottom:24px">${pct}% correct</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-purple" onclick="startWordQuiz()">Try Again</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('wquiz-start-card').style.display='block';document.getElementById('wquiz-result').style.display='none'">Back</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ── GRAMMAR DATA ── */
+const TENSES=[
+  {name:'Simple Present',use:'Used for habits, routines, general truths, and permanent situations. Describes what regularly happens or what is always true.',formula:'Subject + base verb (he/she/it → verb+s)',positive:'She reads the newspaper every morning.',negative:'He does not watch television during the week.',question:'Do they work in the city centre?'},
+  {name:'Present Continuous',use:'Used for actions happening right now, temporary situations, or definite future arrangements already planned.',formula:'Subject + am/is/are + verb-ing',positive:'They are preparing a detailed report for the meeting.',negative:'I am not feeling particularly well today.',question:'Is she studying for her final examinations?'},
+  {name:'Present Perfect',use:'Used for past actions with a connection to the present — life experiences, recent news, or when the exact time is unknown or unimportant.',formula:'Subject + have/has + past participle',positive:'He has already submitted the application.',negative:'We have not received any confirmation yet.',question:'Have you ever travelled to South America?'},
+  {name:'Present Perfect Continuous',use:'Emphasises the duration or ongoing nature of an action that started in the past and continues to the present moment.',formula:'Subject + have/has been + verb-ing',positive:'She has been working on this project for six months.',negative:'They have not been sleeping well lately.',question:'How long has he been learning Japanese?'},
+  {name:'Simple Past',use:'Used for completed actions at a specific time in the past. The time is known or implied by context.',formula:'Subject + past form of verb (did + base for negatives/questions)',positive:'The government announced new regulations last week.',negative:'She did not attend the international conference in Berlin.',question:'Did you manage to finish the assignment on time?'},
+  {name:'Past Continuous',use:'Used for an action that was in progress at a specific moment in the past, or to provide background context in a narrative.',formula:'Subject + was/were + verb-ing',positive:'The researchers were conducting experiments throughout the night.',negative:'He was not paying attention during the lecture.',question:'Were they still negotiating when the deadline passed?'},
+  {name:'Past Perfect',use:'Used for an action completed before another past action. It clarifies which of two past events happened first.',formula:'Subject + had + past participle',positive:'By the time she arrived, the presentation had already started.',negative:'They had not anticipated the true scale of the crisis.',question:'Had the company already filed for bankruptcy before the news broke?'},
+  {name:'Past Perfect Continuous',use:'Emphasises the duration of an action that was ongoing up to a certain point in the past.',formula:'Subject + had been + verb-ing',positive:'He had been waiting for over an hour before the doctor called him in.',negative:'They had not been investing in infrastructure for several years.',question:'How long had she been living abroad before she returned?'},
+  {name:'Simple Future — will',use:'Used for spontaneous decisions made at the moment of speaking, predictions, promises, offers, or requests.',formula:'Subject + will + base verb',positive:'Scientists predict this technology will transform modern healthcare.',negative:'The changes will not take effect until next year.',question:'Will renewable energy fully replace fossil fuels?'},
+  {name:'Future — going to',use:'Used for intentions decided before the moment of speaking, or for predictions based on current visible evidence.',formula:'Subject + am/is/are going to + base verb',positive:'The company is going to launch a new product line next quarter.',negative:'He is not going to accept those terms under any circumstances.',question:'Are they going to expand their operations into Asia?'},
+  {name:'Future Continuous',use:'Used for an action that will be in progress at a specific future time, or to describe future events that are already planned.',formula:'Subject + will be + verb-ing',positive:'By 2030, millions of people will be commuting in electric vehicles.',negative:'She will not be attending the summit this year.',question:'Will the team be working remotely during the holiday period?'},
+  {name:'Future Perfect',use:'Used for an action that will be completed before a specific point in the future.',formula:'Subject + will have + past participle',positive:'By the time you read this, the situation will have changed significantly.',negative:'They will not have finished the construction before winter arrives.',question:'Will she have gained enough experience by the time she applies?'},
+  {name:'Future Perfect Continuous',use:'Emphasises the duration of an action that will have been ongoing up to a future point in time.',formula:'Subject + will have been + verb-ing',positive:'By next spring, he will have been teaching at this university for two decades.',negative:'The factory will not have been operating for long before the first inspection.',question:'Will they have been negotiating for long by the time a deal is reached?'},
+  {name:'Zero Conditional',use:'Used for general scientific truths and facts that are always true when a certain condition is met.',formula:'If + simple present, simple present',positive:'If you heat water to 100°C, it boils.',negative:"If plants don't receive adequate sunlight, they do not photosynthesise.",question:'What happens if the temperature drops below zero degrees?'},
+  {name:'First Conditional',use:'Used for real or highly likely future situations and their probable consequences.',formula:'If + simple present, will + base verb',positive:'If the government invests heavily in education, productivity will increase.',negative:"If she doesn't revise thoroughly, she won't pass the examination.",question:'Will the economy recover quickly if interest rates are reduced?'},
+  {name:'Second Conditional',use:'Used for hypothetical or unlikely present and future situations — imagining things differently from reality.',formula:'If + simple past, would + base verb',positive:'If I were fluent in Mandarin, I would apply for that senior position.',negative:"If they didn't rely on imports so heavily, the situation wouldn't be so fragile.",question:'What would you do differently if you had the chance to start over?'},
+  {name:'Third Conditional',use:'Used for hypothetical situations in the past — things that did not happen, and imagining what the outcome might have been.',formula:'If + past perfect, would have + past participle',positive:'If the treaty had been signed earlier, the conflict would have been avoided.',negative:"If she hadn't intervened at that point, the project would not have succeeded.",question:'What would have happened if the discovery had been made a decade sooner?'},
+  {name:'Passive Voice',use:'Used when the focus is on the action or its object rather than on who performs it. Extremely common in academic, scientific, and formal writing.',formula:'Subject + to be (any tense) + past participle',positive:'The report was published by a team of independent researchers.',negative:'The new policy has not been fully implemented across all departments.',question:'Was the final decision taken without consulting the board of directors?'},
+  {name:'Reported Speech',use:'Used to convey what someone said without quoting them verbatim. Tenses, pronouns, and time expressions typically shift back one step.',formula:'Subject + said/told + (that) + shifted tense',positive:'She said that she had completed the research well ahead of schedule.',negative:'He told me that he would not be able to attend the award ceremony.',question:'Did she explain why the results had turned out so unexpectedly?'},
+  {name:'Modal Verbs',use:'Modals express ability (can/could), possibility (might/may/could), obligation (must/have to/should), permission (may/can), and logical deduction (must/cannot). Essential for nuanced C1–C2 communication.',formula:'Subject + modal verb + base verb',positive:'This phenomenon could have far-reaching consequences for global policy.',negative:"She shouldn't have underestimated the complexity of the underlying task.",question:'Must the proposal be submitted before the full committee convenes?'},
+];
+
+function buildGrammarPage(){
+  const grid=document.getElementById('tense-grid');
+  grid.innerHTML=TENSES.map((t,i)=>`<div class="tense-chip" id="tc-${i}" onclick="showTense(${i})">${t.name}</div>`).join('');
+  showTense(0);
+}
+function showTense(idx){
+  document.querySelectorAll('.tense-chip').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tc-'+idx)?.classList.add('active');
+  const t=TENSES[idx];
+  document.getElementById('tense-detail-container').innerHTML=`
+    <div class="card tense-detail active">
+      <div class="tense-header">${t.name}</div>
+      <div class="tense-use">📌 ${t.use}</div>
+      <div class="tense-formula">Formula: ${t.formula}</div>
+      <div class="sentence-row"><div class="s-type s-pos">Positive</div><div class="s-text">${t.positive}</div></div>
+      <div class="sentence-row"><div class="s-type s-neg">Negative</div><div class="s-text">${t.negative}</div></div>
+      <div class="sentence-row"><div class="s-type s-que">Question</div><div class="s-text">${t.question}</div></div>
+    </div>
+  `;
+}
+
+/* ── ADMIN ── */
+function changeUsername(){
+  const v=document.getElementById('new-username').value.trim();
+  const m=document.getElementById('username-msg');
+  if(!v){showMsg(m,'Please enter a username.','danger');return;}
+  const c=getCreds(); c.user=v; saveCreds(c);
+  showMsg(m,'Username updated successfully!','success');
+  document.getElementById('new-username').value='';
+}
+function changePassword(){
+  const cur=document.getElementById('cur-pass').value;
+  const nw=document.getElementById('new-pass').value;
+  const m=document.getElementById('pass-msg');
+  const c=getCreds();
+  if(cur!==c.pass){showMsg(m,'Current password is incorrect.','danger');return;}
+  if(nw.length<4){showMsg(m,'New password must be at least 4 characters.','danger');return;}
+  c.pass=nw; saveCreds(c);
+  showMsg(m,'Password updated!','success');
+  document.getElementById('cur-pass').value='';
+  document.getElementById('new-pass').value='';
+}
+function saveApiKeySetting(){
+  const k=document.getElementById('api-key-input').value.trim();
+  const m=document.getElementById('api-msg');
+  if(!k.startsWith('sk-ant-')){showMsg(m,'Invalid key format. Must start with sk-ant-','danger');return;}
+  storeApiKey(k); showMsg(m,'API key saved!','success');
+}
+function resetProgress(){
+  if(!confirm('Reset level and XP to B1? Cannot be undone.')) return;
+  S.xp=0; S.articlesRead=0; saveProgress(); updateLevelUI();
+  toast('Progress reset to B1.');
+}
+function showMsg(el,text,type){
+  el.textContent=text; el.style.display='block';
+  el.style.color=type==='success'?'var(--success)':'var(--danger)';
+  setTimeout(()=>el.style.display='none',3000);
+}
+</script>
+</body>
+</html>
