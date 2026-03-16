@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LexisUp — Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="login-page">
+    <div class="card login-card">
+      <h1>LexisUp 📖</h1>
+      <p>Your personal English learning journey from B1 to C2.</p>
+
+      <div id="error-msg" class="alert alert-danger" style="display:none;"></div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-lg" id="login-btn" style="width:100%">
+        Sign In
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // Check if already logged in
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists() && userDoc.data().role === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'app.html';
+        }
+      }
+    });
+
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errorMsg = document.getElementById('error-msg');
+      const btn = document.getElementById('login-btn');
+
+      if (!email || !password) {
+        errorMsg.textContent = 'Please enter email and password.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+      errorMsg.style.display = 'none';
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Check/create user profile
+        const userRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (!userDoc.exists()) {
+          await setDoc(userRef, {
+            email: user.email,
+            role: 'user',
+            level: 'B1',
+            createdAt: new Date(),
+            progress: {
+              reading: { completed: 0, passed: 0, streak: 0 },
+              grammar: { completed: 0, passed: 0, streak: 0 },
+              vocabulary: { correct: 0, streak: 0, currentLevel: 'B1' }
+            }
+          });
+        }
+
+        const data = userDoc.exists() ? userDoc.data() : { role: 'user' };
+        if (data.role === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'app.html';
+        }
+
+      } catch (err) {
+        let msg = 'Login failed. Please try again.';
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+          msg = 'Invalid email or password.';
+        }
+        errorMsg.textContent = msg;
+        errorMsg.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+
+    // Enter key
+    document.getElementById('password').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('login-btn').click();
+    });
+  </script>
+</body>
+</html>
