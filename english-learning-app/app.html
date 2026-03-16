@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LexisUp</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-brand">LexisUp 📖</div>
+  <ul class="navbar-nav">
+    <li><a href="#" class="active" data-tab="reading">📰 Reading</a></li>
+    <li><a href="#" data-tab="grammar">✏️ Grammar</a></li>
+    <li><a href="#" data-tab="vocabulary">🔤 Vocabulary</a></li>
+    <li><a href="#" data-tab="mywords">📚 My Words</a></li>
+  </ul>
+  <div class="navbar-right">
+    <span class="level-badge" id="level-display">B1</span>
+    <button class="btn btn-secondary btn-sm" id="logout-btn">Sign Out</button>
+  </div>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav">
+  <a href="#" class="active" data-tab="reading"><span>📰</span>Reading</a>
+  <a href="#" data-tab="grammar"><span>✏️</span>Grammar</a>
+  <a href="#" data-tab="vocabulary"><span>🔤</span>Vocab</a>
+  <a href="#" data-tab="mywords"><span>📚</span>My Words</a>
+</div>
+
+<!-- WORD POPUP -->
+<div class="word-popup" id="word-popup">
+  <h4 id="popup-word"></h4>
+  <p id="popup-meaning"></p>
+  <button class="btn btn-primary btn-sm" id="popup-save-btn">+ Add to My Words</button>
+</div>
+
+<div class="main-content">
+
+  <!-- ========== READING ========== -->
+  <div class="tab-content active" id="tab-reading">
+    <div class="section-header">
+      <h2>Reading</h2>
+      <p>Read articles and answer questions to improve your comprehension.</p>
+    </div>
+
+    <!-- Level Progress -->
+    <div class="level-progress">
+      <div class="level-progress-header">
+        <span class="level-progress-title">Reading Progress</span>
+        <span class="level-progress-value" id="reading-progress-text">0 / 5 passed</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="reading-progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Article Source Selection -->
+    <div id="reading-start" class="card" style="margin-bottom:24px;">
+      <h3 style="margin-bottom:16px; font-family:'Playfair Display',serif;">Choose Article Source</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <button class="btn btn-primary" id="btn-generate-article">
+          🤖 Generate Article (AI)
+        </button>
+        <button class="btn btn-secondary" id="btn-paste-article">
+          📋 Paste My Own Article
+        </button>
+      </div>
+      <div id="paste-area" style="display:none; margin-top:16px;">
+        <label>Paste your article here</label>
+        <textarea id="custom-article-input" placeholder="Paste the article text here..." style="min-height:200px;"></textarea>
+        <button class="btn btn-primary" style="margin-top:12px;" id="btn-use-custom-article">Use This Article →</button>
+      </div>
+    </div>
+
+    <!-- Article Display -->
+    <div id="reading-article-section" style="display:none;">
+      <div class="card" style="margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div>
+            <h3 id="article-title" style="font-family:'Playfair Display',serif; font-size:20px;"></h3>
+            <span class="chip chip-blue" id="article-level-chip" style="margin-top:6px;"></span>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-new-article">New Article</button>
+        </div>
+        <div id="article-loading" class="loading" style="display:none;">
+          <div class="spinner"></div> Generating article...
+        </div>
+        <div class="article-text" id="article-body"></div>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:16px;">💡 Click on any word to see its Turkish meaning</p>
+      </div>
+
+      <!-- Questions -->
+      <div class="card" id="questions-section">
+        <h3 style="font-family:'Playfair Display',serif; margin-bottom:20px;">Comprehension Questions</h3>
+        <div id="questions-loading" class="loading" style="display:none;">
+          <div class="spinner"></div> Generating questions...
+        </div>
+        <div id="questions-list"></div>
+        <button class="btn btn-primary" id="btn-submit-answers" style="display:none; margin-top:16px;">
+          Submit Answers
+        </button>
+        <div id="answers-feedback" style="display:none; margin-top:20px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== GRAMMAR ========== -->
+  <div class="tab-content" id="tab-grammar">
+    <div class="section-header">
+      <h2>Grammar</h2>
+      <p>Master English tenses and structures from basics to advanced.</p>
+    </div>
+
+    <!-- Level Progress -->
+    <div class="level-progress">
+      <div class="level-progress-header">
+        <span class="level-progress-title">Grammar Progress</span>
+        <span class="level-progress-value" id="grammar-progress-text">0 / 5 passed</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="grammar-progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+      <!-- Tense Reference -->
+      <div>
+        <h3 style="font-family:'Playfair Display',serif; margin-bottom:16px;">Tense Reference</h3>
+        <div id="tense-list"></div>
+      </div>
+
+      <!-- Grammar Quiz -->
+      <div>
+        <div class="card">
+          <h3 style="font-family:'Playfair Display',serif; margin-bottom:6px;">Grammar Quiz</h3>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">AI-generated questions for your level</p>
+          <button class="btn btn-primary" id="btn-start-grammar-quiz" style="width:100%; margin-bottom:20px;">
+            Start Quiz
+          </button>
+          <div id="grammar-quiz-area"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== VOCABULARY ========== -->
+  <div class="tab-content" id="tab-vocabulary">
+    <div class="section-header">
+      <h2>Vocabulary</h2>
+      <p>Build your word bank from B2 to C2 level.</p>
+    </div>
+
+    <!-- Level Progress -->
+    <div class="level-progress">
+      <div class="level-progress-header">
+        <span class="level-progress-title">Vocabulary Level</span>
+        <span class="level-progress-value" id="vocab-progress-text">0 / 5 correct</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="vocab-progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Topic Filter -->
+    <div class="card" style="margin-bottom:24px;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <span style="font-size:13px; color:var(--text-muted);">Topic:</span>
+        <button class="btn btn-primary btn-sm topic-btn active" data-topic="General">General</button>
+        <button class="btn btn-secondary btn-sm topic-btn" data-topic="Politics">Politics</button>
+        <button class="btn btn-secondary btn-sm topic-btn" data-topic="Business">Business</button>
+        <button class="btn btn-secondary btn-sm topic-btn" data-topic="Science">Science</button>
+        <button class="btn btn-secondary btn-sm topic-btn" data-topic="Football">Football</button>
+        <button class="btn btn-secondary btn-sm topic-btn" data-topic="Technology">Technology</button>
+        <button class="btn btn-secondary btn-sm topic-btn" data-topic="Health">Health</button>
+      </div>
+    </div>
+
+    <!-- Vocab Quiz -->
+    <div class="card">
+      <div id="vocab-loading" class="loading" style="display:none;">
+        <div class="spinner"></div> Loading question...
+      </div>
+      <div id="vocab-quiz-area">
+        <div style="text-align:center; padding:40px; color:var(--text-muted);">
+          <p style="margin-bottom:16px;">Select a topic and start your vocabulary test</p>
+          <button class="btn btn-primary" id="btn-start-vocab">Start Vocabulary Test</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MY WORDS ========== -->
+  <div class="tab-content" id="tab-mywords">
+    <div class="section-header">
+      <h2>My Words</h2>
+      <p>Your personal vocabulary list saved across all devices.</p>
+    </div>
+
+    <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);">
+      <div class="stat-card">
+        <div class="stat-value" id="total-words-count">0</div>
+        <div class="stat-label">Total Words</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="quiz-score-display">—</div>
+        <div class="stat-label">Last Quiz Score</div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px; margin-bottom:20px;">
+      <button class="btn btn-primary" id="btn-mywords-quiz">Take Quiz</button>
+      <button class="btn btn-secondary" id="btn-reveal-all">Show All Meanings</button>
+    </div>
+
+    <div id="mywords-quiz-area" style="display:none; margin-bottom:24px;" class="card"></div>
+
+    <div id="mywords-loading" class="loading" style="display:none;">
+      <div class="spinner"></div>
+    </div>
+    <div id="mywords-list"></div>
+    <div id="mywords-empty" style="display:none; text-align:center; padding:40px; color:var(--text-muted);">
+      <p>No words saved yet.</p>
+      <p style="font-size:13px; margin-top:8px;">Click on words while reading to add them here.</p>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { auth, db, GEMINI_API_KEY } from './js/firebase-config.js';
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  doc, getDoc, setDoc, updateDoc,
+  collection, addDoc, getDocs, deleteDoc, query, where
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// ===== STATE =====
+let currentUser = null;
+let userData = null;
+let currentArticle = '';
+let currentQuestions = [];
+let currentVocabQuestion = null;
+let currentVocabTopic = 'General';
+let vocabStreak = 0;
+let vocabWrongStreak = 0;
+let grammarQuizQuestions = [];
+let grammarQuizIndex = 0;
+let grammarQuizScore = 0;
+let currentWordForPopup = null;
+let revealAll = false;
+
+// ===== AUTH =====
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  currentUser = user;
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  userData = snap.data();
+  initApp();
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  signOut(auth).then(() => window.location.href = 'index.html');
+});
+
+// ===== INIT =====
+function initApp() {
+  document.getElementById('level-display').textContent = userData.level || 'B1';
+  updateProgressBars();
+  initTabs();
+  initReading();
+  initGrammar();
+  initVocabulary();
+  initMyWords();
+}
+
+// ===== TABS =====
+function initTabs() {
+  const allLinks = document.querySelectorAll('[data-tab]');
+  allLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const tab = link.dataset.tab;
+      allLinks.forEach(l => l.classList.remove('active'));
+      document.querySelectorAll('[data-tab="'+tab+'"]').forEach(l => l.classList.add('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      if (tab === 'mywords') loadMyWords();
+    });
+  });
+}
+
+// ===== PROGRESS =====
+function updateProgressBars() {
+  const p = userData.progress || {};
+  const rPassed = p.reading?.passed || 0;
+  const gPassed = p.grammar?.passed || 0;
+  const vCorrect = p.vocabulary?.correct || 0;
+
+  document.getElementById('reading-progress-text').textContent = `${rPassed} / 5 passed`;
+  document.getElementById('reading-progress-bar').style.width = `${Math.min(rPassed/5*100, 100)}%`;
+
+  document.getElementById('grammar-progress-text').textContent = `${gPassed} / 5 passed`;
+  document.getElementById('grammar-progress-bar').style.width = `${Math.min(gPassed/5*100, 100)}%`;
+
+  document.getElementById('vocab-progress-text').textContent = `${vCorrect} / 5 correct`;
+  document.getElementById('vocab-progress-bar').style.width = `${Math.min(vCorrect/5*100, 100)}%`;
+}
+
+async function saveProgress() {
+  await updateDoc(doc(db, 'users', currentUser.uid), {
+    progress: userData.progress,
+    level: userData.level
+  });
+  document.getElementById('level-display').textContent = userData.level;
+  updateProgressBars();
+}
+
+async function checkLevelUp(module) {
+  const levels = ['B1', 'B2', 'C1', 'C2'];
+  const p = userData.progress;
+  const rPassed = p.reading?.passed || 0;
+  const gPassed = p.grammar?.passed || 0;
+  const vCorrect = p.vocabulary?.correct || 0;
+
+  const currentLevelIndex = levels.indexOf(userData.level);
+
+  if (rPassed >= 5 && gPassed >= 5 && vCorrect >= 5 && currentLevelIndex < levels.length - 1) {
+    const nextLevel = levels[currentLevelIndex + 1];
+    userData.level = nextLevel;
+    userData.progress.reading.passed = 0;
+    userData.progress.grammar.passed = 0;
+    userData.progress.vocabulary.correct = 0;
+    await saveProgress();
+    showAlert(`🎉 Congratulations! You've advanced to ${nextLevel}!`, 'success', module + '-section');
+  }
+}
+
+function showAlert(msg, type, containerId) {
+  const el = document.createElement('div');
+  el.className = `alert alert-${type}`;
+  el.textContent = msg;
+  const container = document.getElementById(containerId) || document.querySelector('.main-content');
+  container.prepend(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+// ===== GEMINI API =====
+async function callGemini(prompt) {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.7, maxOutputTokens: 2000 }
+    })
+  });
+  const data = await response.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+// ===== WORD POPUP =====
+function makeWordsClickable(container) {
+  const text = container.innerHTML;
+  const words = container.querySelectorAll ? null : null;
+  // Wrap each word in a span
+  container.innerHTML = container.innerHTML.replace(/<[^>]+>/g, (match) => match)
+    .replace(/\b([a-zA-Z]{3,})\b/g, '<span class="word-hover">$1</span>');
+}
+
+document.addEventListener('click', async (e) => {
+  const popup = document.getElementById('word-popup');
+  if (e.target.classList.contains('word-hover')) {
+    const word = e.target.textContent;
+    currentWordForPopup = word;
+    document.getElementById('popup-word').textContent = word;
+    document.getElementById('popup-meaning').textContent = 'Loading...';
+    popup.style.display = 'block';
+    popup.style.left = Math.min(e.pageX, window.innerWidth - 300) + 'px';
+    popup.style.top = (e.pageY - popup.offsetHeight - 10) + 'px';
+
+    const meaning = await callGemini(`Give only the Turkish meaning of the English word "${word}" in 1-5 words. No extra text, just the Turkish translation.`);
+    document.getElementById('popup-meaning').textContent = meaning.trim();
+  } else if (!popup.contains(e.target)) {
+    popup.style.display = 'none';
+  }
+});
+
+document.getElementById('popup-save-btn').addEventListener('click', async () => {
+  if (!currentWordForPopup) return;
+  const meaning = document.getElementById('popup-meaning').textContent;
+  await addDoc(collection(db, 'users', currentUser.uid, 'words'), {
+    word: currentWordForPopup,
+    meaning: meaning,
+    addedAt: new Date()
+  });
+  document.getElementById('popup-save-btn').textContent = '✓ Saved!';
+  setTimeout(() => document.getElementById('popup-save-btn').textContent = '+ Add to My Words', 2000);
+});
+
+// ===== READING =====
+function initReading() {
+  document.getElementById('btn-generate-article').addEventListener('click', generateArticle);
+  document.getElementById('btn-paste-article').addEventListener('click', () => {
+    const area = document.getElementById('paste-area');
+    area.style.display = area.style.display === 'none' ? 'block' : 'none';
+  });
+  document.getElementById('btn-use-custom-article').addEventListener('click', () => {
+    const text = document.getElementById('custom-article-input').value.trim();
+    if (!text) return;
+    currentArticle = text;
+    document.getElementById('article-title').textContent = 'Custom Article';
+    document.getElementById('article-level-chip').textContent = userData.level;
+    showArticle(text);
+  });
+  document.getElementById('btn-new-article').addEventListener('click', () => {
+    document.getElementById('reading-article-section').style.display = 'none';
+    document.getElementById('reading-start').style.display = 'block';
+    document.getElementById('questions-list').innerHTML = '';
+    document.getElementById('btn-submit-answers').style.display = 'none';
+    document.getElementById('answers-feedback').style.display = 'none';
+  });
+  document.getElementById('btn-submit-answers').addEventListener('click', submitAnswers);
+}
+
+async function generateArticle() {
+  const level = userData.level;
+  document.getElementById('reading-start').style.display = 'none';
+  document.getElementById('reading-article-section').style.display = 'block';
+  document.getElementById('article-loading').style.display = 'flex';
+  document.getElementById('article-body').innerHTML = '';
+  document.getElementById('questions-list').innerHTML = '';
+  document.getElementById('btn-submit-answers').style.display = 'none';
+
+  const topics = ['technology', 'environment', 'politics', 'business', 'science', 'culture', 'health'];
+  const topic = topics[Math.floor(Math.random() * topics.length)];
+
+  const prompt = `Write a ${level} level English article about ${topic} for an English learner.
+Format:
+TITLE: [title here]
+CONTENT: [article content, 3-4 paragraphs, appropriate for ${level} level]
+
+Keep it informative and engaging. Use vocabulary appropriate for ${level}.`;
+
+  const result = await callGemini(prompt);
+  const titleMatch = result.match(/TITLE:\s*(.+)/);
+  const contentMatch = result.match(/CONTENT:\s*([\s\S]+)/);
+
+  const title = titleMatch ? titleMatch[1].trim() : 'Article';
+  const content = contentMatch ? contentMatch[1].trim() : result;
+
+  currentArticle = content;
+  document.getElementById('article-title').textContent = title;
+  document.getElementById('article-level-chip').textContent = level;
+  document.getElementById('article-loading').style.display = 'none';
+
+  showArticle(content);
+  await generateQuestions(content, level);
+}
+
+function showArticle(text) {
+  const body = document.getElementById('article-body');
+  const paragraphs = text.split('\n').filter(p => p.trim());
+  body.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+
+  // Make words clickable
+  body.querySelectorAll('p').forEach(p => {
+    p.innerHTML = p.innerHTML.replace(/\b([a-zA-Z]{4,})\b/g, '<span class="word-hover">$1</span>');
+  });
+}
+
+async function generateQuestions(article, level) {
+  document.getElementById('questions-loading').style.display = 'flex';
+
+  const prompt = `Based on this article, create exactly 5 open-ended comprehension questions for a ${level} English learner.
+
+Article: ${article}
+
+Return ONLY a JSON array like this (no markdown, no extra text):
+[
+  {"question": "...", "expectedPoints": ["point1", "point2"]},
+  ...
+]`;
+
+  const result = await callGemini(prompt);
+  document.getElementById('questions-loading').style.display = 'none';
+
+  try {
+    const cleaned = result.replace(/```json|```/g, '').trim();
+    currentQuestions = JSON.parse(cleaned);
+  } catch {
+    currentQuestions = [
+      { question: "What is the main topic of this article?", expectedPoints: ["main topic"] },
+      { question: "What are the key points mentioned?", expectedPoints: ["key points"] },
+      { question: "What is the author's perspective?", expectedPoints: ["perspective"] },
+      { question: "Can you summarize the article in 2-3 sentences?", expectedPoints: ["summary"] },
+      { question: "What did you find most interesting about this article?", expectedPoints: ["opinion"] }
+    ];
+  }
+
+  renderQuestions();
+}
+
+function renderQuestions() {
+  const list = document.getElementById('questions-list');
+  list.innerHTML = currentQuestions.map((q, i) => `
+    <div class="form-group">
+      <label>Question ${i+1}: ${q.question}</label>
+      <textarea id="answer-${i}" placeholder="Write your answer here..."></textarea>
+    </div>
+  `).join('');
+  document.getElementById('btn-submit-answers').style.display = 'block';
+}
+
+async function submitAnswers() {
+  const btn = document.getElementById('btn-submit-answers');
+  btn.disabled = true;
+  btn.textContent = 'Evaluating...';
+
+  const answers = currentQuestions.map((q, i) => ({
+    question: q.question,
+    answer: document.getElementById('answer-' + i)?.value || ''
+  }));
+
+  const prompt = `You are an English teacher. Evaluate these answers to comprehension questions.
+For each answer:
+1. Check if it correctly addresses the question (Content: correct/partial/incorrect)
+2. List grammar mistakes and corrections
+3. Give a score 0-10
+
+Questions and Answers:
+${answers.map((a, i) => `Q${i+1}: ${a.question}\nA${i+1}: ${a.answer}`).join('\n\n')}
+
+Return ONLY a JSON array (no markdown):
+[
+  {
+    "questionNum": 1,
+    "contentScore": "correct/partial/incorrect",
+    "grammarFeedback": "...",
+    "correctedAnswer": "...",
+    "score": 8
+  },
+  ...
+]`;
+
+  const result = await callGemini(prompt);
+
+  try {
+    const cleaned = result.replace(/```json|```/g, '').trim();
+    const feedback = JSON.parse(cleaned);
+    displayFeedback(feedback);
+
+    const totalScore = feedback.reduce((sum, f) => sum + (f.score || 0), 0);
+    const maxScore = feedback.length * 10;
+    const percentage = (totalScore / maxScore) * 100;
+
+    if (!userData.progress) userData.progress = {};
+    if (!userData.progress.reading) userData.progress.reading = { completed: 0, passed: 0, streak: 0 };
+
+    userData.progress.reading.completed++;
+    if (percentage >= 70) {
+      userData.progress.reading.passed = Math.min((userData.progress.reading.passed || 0) + 1, 5);
+      userData.progress.reading.streak = (userData.progress.reading.streak || 0) + 1;
+    } else {
+      userData.progress.reading.streak = 0;
+      // Check for 3 consecutive fails
+      if ((userData.progress.reading.failStreak || 0) >= 2) {
+        const levels = ['B1', 'B2', 'C1', 'C2'];
+        const idx = levels.indexOf(userData.level);
+        if (idx > 0) {
+          userData.level = levels[idx - 1];
+          userData.progress.reading.passed = 0;
+        }
+        userData.progress.reading.failStreak = 0;
+      } else {
+        userData.progress.reading.failStreak = (userData.progress.reading.failStreak || 0) + 1;
+      }
+    }
+
+    await saveProgress();
+    await checkLevelUp('reading');
+
+  } catch {
+    document.getElementById('answers-feedback').innerHTML = '<div class="alert alert-danger">Could not evaluate answers. Please try again.</div>';
+    document.getElementById('answers-feedback').style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Submit Answers';
+}
+
+function displayFeedback(feedback) {
+  const container = document.getElementById('answers-feedback');
+  container.style.display = 'block';
+  container.innerHTML = '<h3 style="font-family:\'Playfair Display\',serif; margin-bottom:16px;">Feedback</h3>' +
+    feedback.map((f, i) => `
+      <div class="card" style="margin-bottom:16px; border-left: 4px solid ${f.score >= 7 ? 'var(--success)' : f.score >= 4 ? 'var(--warning)' : 'var(--danger)'};">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <strong>Question ${f.questionNum}</strong>
+          <span class="chip ${f.score >= 7 ? 'chip-green' : 'chip-blue'}">${f.score}/10</span>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:6px;"><strong>Content:</strong> ${f.contentScore}</p>
+        ${f.grammarFeedback ? `<p style="font-size:13px; color:var(--warning); margin-bottom:6px;"><strong>Grammar:</strong> ${f.grammarFeedback}</p>` : ''}
+        ${f.correctedAnswer ? `<p style="font-size:13px; color:var(--success);"><strong>Suggested:</strong> ${f.correctedAnswer}</p>` : ''}
+      </div>
+    `).join('');
+  container.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===== GRAMMAR =====
+const TENSES = [
+  { name: 'Present Simple', examples: ['She works every day.', 'They don\'t eat meat.', 'Does he play football?'] },
+  { name: 'Present Continuous', examples: ['I am reading a book.', 'They aren\'t sleeping.', 'Is she coming?'] },
+  { name: 'Present Perfect', examples: ['I have visited Paris.', 'She hasn\'t finished yet.', 'Have you ever tried sushi?'] },
+  { name: 'Present Perfect Continuous', examples: ['He has been working for hours.', 'They haven\'t been sleeping well.', 'How long have you been waiting?'] },
+  { name: 'Past Simple', examples: ['We went to the cinema.', 'I didn\'t see him.', 'Did you call her?'] },
+  { name: 'Past Continuous', examples: ['I was studying when she called.', 'They weren\'t watching TV.', 'What were you doing?'] },
+  { name: 'Past Perfect', examples: ['He had already eaten.', 'She hadn\'t been there before.', 'Had you met him before?'] },
+  { name: 'Past Perfect Continuous', examples: ['She had been crying for an hour.', 'They hadn\'t been talking.', 'How long had it been raining?'] },
+  { name: 'Future Simple (will)', examples: ['I will help you.', 'She won\'t come.', 'Will you join us?'] },
+  { name: 'Future with going to', examples: ['They are going to travel.', 'I\'m not going to quit.', 'Are you going to study?'] },
+  { name: 'Future Continuous', examples: ['I will be working at 8pm.', 'She won\'t be attending.', 'Will you be coming?'] },
+  { name: 'Future Perfect', examples: ['By June, I will have graduated.', 'She won\'t have finished.', 'Will you have eaten by then?'] },
+  { name: 'First Conditional', examples: ['If it rains, I will stay home.', 'If she calls, I\'ll answer.', 'What will you do if you win?'] },
+  { name: 'Second Conditional', examples: ['If I were rich, I would travel.', 'She would help if she could.', 'What would you do if you could fly?'] },
+  { name: 'Third Conditional', examples: ['If I had studied, I would have passed.', 'She wouldn\'t have left if he had asked.', 'What would you have done?'] },
+  { name: 'Mixed Conditional', examples: ['If I had slept, I wouldn\'t be tired now.', 'If I were braver, I would have spoken.', 'Would you be here if you had known?'] },
+];
+
+function initGrammar() {
+  const list = document.getElementById('tense-list');
+  list.innerHTML = TENSES.map((t, i) => `
+    <div class="tense-item" data-index="${i}">
+      <h4>${t.name}</h4>
+      <div class="tense-examples">
+        ${t.examples.map(ex => `<div class="tense-example">${ex}</div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.tense-item').forEach(item => {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  });
+
+  document.getElementById('btn-start-grammar-quiz').addEventListener('click', startGrammarQuiz);
+}
+
+async function startGrammarQuiz() {
+  const btn = document.getElementById('btn-start-grammar-quiz');
+  btn.disabled = true;
+  btn.textContent = 'Generating quiz...';
+  document.getElementById('grammar-quiz-area').innerHTML = '<div class="loading"><div class="spinner"></div> Preparing questions...</div>';
+
+  const level = userData.level;
+  const prompt = `Create a grammar quiz for ${level} English level with 5 fill-in-the-blank questions focusing on tenses and structures (not vocabulary).
+
+Return ONLY a JSON array (no markdown, no extra text):
+[
+  {
+    "sentence": "She ___ to the market yesterday.",
+    "answer": "went",
+    "options": ["goes", "went", "has gone", "was going"],
+    "tense": "Past Simple",
+    "explanation": "We use Past Simple for completed actions in the past."
+  },
+  ...
+]`;
+
+  const result = await callGemini(prompt);
+  btn.disabled = false;
+  btn.textContent = 'New Quiz';
+
+  try {
+    const cleaned = result.replace(/```json|```/g, '').trim();
+    grammarQuizQuestions = JSON.parse(cleaned);
+    grammarQuizIndex = 0;
+    grammarQuizScore = 0;
+    renderGrammarQuestion();
+  } catch {
+    document.getElementById('grammar-quiz-area').innerHTML = '<div class="alert alert-danger">Failed to generate quiz. Try again.</div>';
+  }
+}
+
+function renderGrammarQuestion() {
+  if (grammarQuizIndex >= grammarQuizQuestions.length) {
+    showGrammarResults();
+    return;
+  }
+
+  const q = grammarQuizQuestions[grammarQuizIndex];
+  const area = document.getElementById('grammar-quiz-area');
+  area.innerHTML = `
+    <div style="margin-bottom:12px;">
+      <span style="font-size:13px; color:var(--text-muted);">Question ${grammarQuizIndex + 1} of ${grammarQuizQuestions.length}</span>
+      <span class="chip chip-purple" style="margin-left:8px;">${q.tense}</span>
+    </div>
+    <p style="font-size:17px; font-weight:600; margin-bottom:20px;">${q.sentence}</p>
+    ${q.options.map((opt, i) => `
+      <div class="quiz-option" data-answer="${opt}">${opt}</div>
+    `).join('')}
+    <p style="font-size:12px; color:var(--text-muted); margin-top:12px;" id="grammar-explanation" style="display:none;"></p>
+  `;
+
+  area.querySelectorAll('.quiz-option').forEach(opt => {
+    opt.addEventListener('click', () => handleGrammarAnswer(opt, q));
+  });
+}
+
+function handleGrammarAnswer(el, q) {
+  const allOpts = document.querySelectorAll('.quiz-option');
+  allOpts.forEach(o => {
+    o.classList.add('disabled');
+    if (o.dataset.answer === q.answer) o.classList.add('correct');
+  });
+
+  if (el.dataset.answer === q.answer) {
+    el.classList.add('correct');
+    grammarQuizScore++;
+  } else {
+    el.classList.add('wrong');
+  }
+
+  document.getElementById('grammar-explanation').textContent = q.explanation;
+  document.getElementById('grammar-explanation').style.display = 'block';
+
+  setTimeout(() => {
+    grammarQuizIndex++;
+    renderGrammarQuestion();
+  }, 1500);
+}
+
+async function showGrammarResults() {
+  const percentage = (grammarQuizScore / grammarQuizQuestions.length) * 100;
+  const passed = percentage >= 70;
+
+  if (!userData.progress) userData.progress = {};
+  if (!userData.progress.grammar) userData.progress.grammar = { completed: 0, passed: 0, streak: 0 };
+
+  userData.progress.grammar.completed++;
+  if (passed) {
+    userData.progress.grammar.passed = Math.min((userData.progress.grammar.passed || 0) + 1, 5);
+    userData.progress.grammar.failStreak = 0;
+  } else {
+    if ((userData.progress.grammar.failStreak || 0) >= 2) {
+      const levels = ['B1', 'B2', 'C1', 'C2'];
+      const idx = levels.indexOf(userData.level);
+      if (idx > 0) {
+        userData.level = levels[idx - 1];
+        userData.progress.grammar.passed = 0;
+      }
+      userData.progress.grammar.failStreak = 0;
+    } else {
+      userData.progress.grammar.failStreak = (userData.progress.grammar.failStreak || 0) + 1;
+    }
+  }
+
+  await saveProgress();
+  await checkLevelUp('grammar');
+
+  document.getElementById('grammar-quiz-area').innerHTML = `
+    <div style="text-align:center; padding:20px;">
+      <div style="font-size:48px; font-family:'Playfair Display',serif; color:${passed ? 'var(--success)' : 'var(--danger)'};">
+        ${grammarQuizScore}/${grammarQuizQuestions.length}
+      </div>
+      <p style="color:var(--text-muted); margin:8px 0 20px;">${passed ? '✅ Passed! Great work!' : '❌ Keep practicing!'}</p>
+      <button class="btn btn-primary" onclick="document.getElementById('btn-start-grammar-quiz').click()">Try Again</button>
+    </div>
+  `;
+}
+
+// ===== VOCABULARY =====
+function initVocabulary() {
+  vocabStreak = userData.progress?.vocabulary?.correct || 0;
+  vocabWrongStreak = 0;
+
+  document.querySelectorAll('.topic-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.topic-btn').forEach(b => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-secondary');
+      });
+      btn.classList.remove('btn-secondary');
+      btn.classList.add('btn-primary');
+      currentVocabTopic = btn.dataset.topic;
+    });
+  });
+
+  document.getElementById('btn-start-vocab').addEventListener('click', loadVocabQuestion);
+}
+
+async function loadVocabQuestion() {
+  const level = userData.level;
+  document.getElementById('vocab-loading').style.display = 'flex';
+  document.getElementById('vocab-quiz-area').innerHTML = '';
+
+  const prompt = `Create a multiple choice vocabulary question for ${level} English level on the topic of "${currentVocabTopic}".
+
+Choose a word that is genuinely at ${level} level (challenging but learnable).
+
+Return ONLY JSON (no markdown):
+{
+  "word": "...",
+  "correctMeaning": "...",
+  "turkishMeaning": "...",
+  "options": ["correct meaning", "wrong1", "wrong2", "wrong3"],
+  "exampleSentence": "..."
+}
+
+Shuffle the options randomly. The correct answer should not always be first.`;
+
+  const result = await callGemini(prompt);
+  document.getElementById('vocab-loading').style.display = 'none';
+
+  try {
+    const cleaned = result.replace(/```json|```/g, '').trim();
+    currentVocabQuestion = JSON.parse(cleaned);
+    renderVocabQuestion();
+  } catch {
+    document.getElementById('vocab-quiz-area').innerHTML = '<div class="alert alert-danger">Failed to load question. Try again.</div>';
+  }
+}
+
+function renderVocabQuestion() {
+  const q = currentVocabQuestion;
+  const area = document.getElementById('vocab-quiz-area');
+  area.innerHTML = `
+    <div style="text-align:center; margin-bottom:24px;">
+      <div style="font-size:32px; font-family:'Playfair Display',serif; font-weight:700; margin-bottom:8px;">${q.word}</div>
+      <p style="color:var(--text-muted); font-size:13px;">What does this word mean?</p>
+    </div>
+    ${q.options.map(opt => `<div class="quiz-option" data-answer="${opt}">${opt}</div>`).join('')}
+    <p style="font-size:13px; color:var(--text-muted); margin-top:16px;" id="vocab-example" style="display:none;"></p>
+  `;
+
+  area.querySelectorAll('.quiz-option').forEach(opt => {
+    opt.addEventListener('click', () => handleVocabAnswer(opt, q));
+  });
+}
+
+async function handleVocabAnswer(el, q) {
+  const allOpts = document.querySelectorAll('#vocab-quiz-area .quiz-option');
+  allOpts.forEach(o => {
+    o.classList.add('disabled');
+    if (o.dataset.answer === q.correctMeaning) o.classList.add('correct');
+  });
+
+  const correct = el.dataset.answer === q.correctMeaning;
+  if (!correct) el.classList.add('wrong');
+
+  document.getElementById('vocab-example').textContent = `Example: ${q.exampleSentence} | Turkish: ${q.turkishMeaning}`;
+  document.getElementById('vocab-example').style.display = 'block';
+
+  if (!userData.progress) userData.progress = {};
+  if (!userData.progress.vocabulary) userData.progress.vocabulary = { correct: 0, streak: 0 };
+
+  if (correct) {
+    vocabStreak++;
+    vocabWrongStreak = 0;
+    userData.progress.vocabulary.correct = Math.min(vocabStreak, 5);
+  } else {
+    vocabWrongStreak++;
+    vocabStreak = Math.max(0, vocabStreak - 1);
+    userData.progress.vocabulary.correct = vocabStreak;
+
+    if (vocabWrongStreak >= 3) {
+      const levels = ['B1', 'B2', 'C1', 'C2'];
+      const idx = levels.indexOf(userData.level);
+      if (idx > 0) {
+        userData.level = levels[idx - 1];
+        userData.progress.vocabulary.correct = 0;
+        vocabStreak = 0;
+        vocabWrongStreak = 0;
+      }
+    }
+  }
+
+  await saveProgress();
+  await checkLevelUp('vocabulary');
+
+  // Add save button
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn btn-secondary btn-sm';
+  saveBtn.style.marginTop = '12px';
+  saveBtn.textContent = '+ Save Word';
+  saveBtn.addEventListener('click', async () => {
+    await addDoc(collection(db, 'users', currentUser.uid, 'words'), {
+      word: q.word,
+      meaning: q.turkishMeaning,
+      addedAt: new Date()
+    });
+    saveBtn.textContent = '✓ Saved!';
+  });
+
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'btn btn-primary btn-sm';
+  nextBtn.style.marginTop = '12px';
+  nextBtn.style.marginLeft = '8px';
+  nextBtn.textContent = 'Next Word →';
+  nextBtn.addEventListener('click', loadVocabQuestion);
+
+  document.getElementById('vocab-quiz-area').appendChild(saveBtn);
+  document.getElementById('vocab-quiz-area').appendChild(nextBtn);
+}
+
+// ===== MY WORDS =====
+async function loadMyWords() {
+  document.getElementById('mywords-loading').style.display = 'flex';
+  const snap = await getDocs(collection(db, 'users', currentUser.uid, 'words'));
+  document.getElementById('mywords-loading').style.display = 'none';
+
+  const words = [];
+  snap.forEach(d => words.push({ id: d.id, ...d.data() }));
+
+  document.getElementById('total-words-count').textContent = words.length;
+
+  if (words.length === 0) {
+    document.getElementById('mywords-empty').style.display = 'block';
+    document.getElementById('mywords-list').innerHTML = '';
+    return;
+  }
+
+  document.getElementById('mywords-empty').style.display = 'none';
+  document.getElementById('mywords-list').innerHTML = words.map(w => `
+    <div class="word-item ${revealAll ? 'revealed' : ''}" data-id="${w.id}">
+      <div>
+        <div class="word-en">${w.word}</div>
+        <div class="word-tr">${w.meaning}</div>
+      </div>
+      <button class="btn btn-danger btn-sm delete-word-btn" data-id="${w.id}">✕</button>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.word-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('delete-word-btn')) {
+        item.classList.toggle('revealed');
+      }
+    });
+  });
+
+  document.querySelectorAll('.delete-word-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await deleteDoc(doc(db, 'users', currentUser.uid, 'words', btn.dataset.id));
+      loadMyWords();
+    });
+  });
+
+  document.getElementById('btn-mywords-quiz').onclick = () => startMyWordsQuiz(words);
+  document.getElementById('btn-reveal-all').onclick = () => {
+    revealAll = !revealAll;
+    document.querySelectorAll('.word-item').forEach(item => item.classList.toggle('revealed', revealAll));
+    document.getElementById('btn-reveal-all').textContent = revealAll ? 'Hide Meanings' : 'Show All Meanings';
+  };
+}
+
+function initMyWords() {
+  loadMyWords();
+}
+
+function startMyWordsQuiz(words) {
+  if (words.length < 4) {
+    alert('You need at least 4 words to take a quiz!');
+    return;
+  }
+
+  const shuffled = [...words].sort(() => Math.random() - 0.5).slice(0, Math.min(10, words.length));
+  let index = 0;
+  let score = 0;
+
+  const quizArea = document.getElementById('mywords-quiz-area');
+  quizArea.style.display = 'block';
+
+  function renderMyWordsQ() {
+    if (index >= shuffled.length) {
+      const pct = Math.round(score / shuffled.length * 100);
+      document.getElementById('quiz-score-display').textContent = `${pct}%`;
+      quizArea.innerHTML = `
+        <div style="text-align:center; padding:20px;">
+          <div style="font-size:36px; font-family:'Playfair Display',serif; color:var(--accent);">${score}/${shuffled.length}</div>
+          <p style="color:var(--text-muted); margin-top:8px;">${pct >= 70 ? '✅ Well done!' : '📚 Keep reviewing!'}</p>
+          <button class="btn btn-secondary btn-sm" style="margin-top:16px;" onclick="document.getElementById('mywords-quiz-area').style.display='none'">Close</button>
+        </div>
+      `;
+      return;
+    }
+
+    const q = shuffled[index];
+    const otherWords = words.filter(w => w.id !== q.id);
+    const distractors = otherWords.sort(() => Math.random() - 0.5).slice(0, 3).map(w => w.meaning);
+    const options = [...distractors, q.meaning].sort(() => Math.random() - 0.5);
+
+    quizArea.innerHTML = `
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">Question ${index+1}/${shuffled.length}</p>
+      <p style="font-size:20px; font-weight:700; font-family:'Playfair Display',serif; margin-bottom:20px;">${q.word}</p>
+      ${options.map(opt => `<div class="quiz-option" data-answer="${opt}">${opt}</div>`).join('')}
+    `;
+
+    quizArea.querySelectorAll('.quiz-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        quizArea.querySelectorAll('.quiz-option').forEach(o => {
+          o.classList.add('disabled');
+          if (o.dataset.answer === q.meaning) o.classList.add('correct');
+        });
+        if (opt.dataset.answer === q.meaning) score++;
+        else opt.classList.add('wrong');
+        setTimeout(() => { index++; renderMyWordsQ(); }, 1000);
+      });
+    });
+  }
+
+  renderMyWordsQ();
+}
+</script>
+</body>
+</html>
